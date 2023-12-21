@@ -37,7 +37,7 @@ jobs:
              
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interactionc --sync
+        run: poetry install --no-interaction --sync
   
   test:
     needs: build
