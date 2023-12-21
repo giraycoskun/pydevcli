@@ -39,20 +39,12 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --sync
   
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - name: Run tests
         run: |
           poetry run python --version
           poetry run coverage run -m pytest tests/
           poetry run coverage report -m
 
-  docs:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - name: Build docs
         run: |
           poetry run mkdocs build --clean
@@ -60,11 +52,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: site
-  
-  release:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
+
       - name: Create PyPI release
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
