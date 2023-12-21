@@ -10,63 +10,62 @@ on:
       - dev
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: '^3.11'
+
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.5.1
+          version: 1.7.0
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-    #   - name: Check out repository
-    #     uses: actions/checkout@v3
-    #   - name: Set up python
-    #     id: setup-python
-    #     uses: actions/setup-python@v4
-    #     with:
-    #       python-version: '^3.11'
-    #   #----------------------------------------------
-    #   #  -----  install & configure poetry  -----
-    #   #----------------------------------------------
-    #   - name: Install Poetry
-    #     uses: snok/install-poetry@v1
-    #     with:
-    #       virtualenvs-create: true
-    #       virtualenvs-in-project: true
-    #       installer-parallel: true
 
-    #   #----------------------------------------------
-    #   #       load cached venv if cache exists
-    #   #----------------------------------------------
-    #   - name: Load cached venv
-    #     id: cached-poetry-dependencies
-    #     uses: actions/cache@v3
-    #     with:
-    #       path: .venv
-    #       key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-    #   #----------------------------------------------
-    #   # install dependencies if cache does not exist
-    #   #----------------------------------------------
-    #   - name: Install dependencies
-    #     if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-    #     run: poetry install --no-interaction --no-root
-    #   #----------------------------------------------
-    #   # install your root project, if required
-    #   #----------------------------------------------
-    #   - name: Install project
-    #     run: poetry install --no-interaction
-    #   #----------------------------------------------
-    #   #              run test suite
-    #   #----------------------------------------------
-    #   - name: Run tests
-    #     run: |
-    #       source .venv/bin/activate
-    #       pytest tests/
-    #       coverage report
-    # docs:
-    # release:
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+             
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interactionc --sync
+  
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: |
+          poetry run python --version
+          poetry run coverage run -m pytest tests/
+          poetry run coverage report -m
+
+  docs:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build docs
+        run: |
+          poetry run mkdocs build --clean
+      - name: Deploy docs to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
+  
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PyPI release
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+          poetry publish --build

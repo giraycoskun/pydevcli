@@ -25,6 +25,7 @@ mkdocstrings = {extras = ["python"], version = "^0.24.0"}
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
+coverage = "^7.3.4"
 
 [build-system]
 requires = ["poetry-core"]
