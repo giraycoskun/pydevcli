@@ -8,6 +8,13 @@ on:
     branches:
       - main
       - dev
+  
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
@@ -48,10 +55,13 @@ jobs:
       - name: Build docs
         run: |
           poetry run mkdocs build --clean
-      - name: Deploy docs to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          folder: site
+          path: ./site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
 
       - name: Create PyPI release
         run: |
