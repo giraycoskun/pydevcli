@@ -1,4 +1,4 @@
-name: Release
+name: dev
 
 on: 
   pull_request:
@@ -7,13 +7,10 @@ on:
   push:
     branches:
       - main
+      - dev
   
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
@@ -50,19 +47,3 @@ jobs:
           poetry run python --version
           poetry run coverage run -m pytest tests/
           poetry run coverage report -m
-
-      - name: Build docs
-        run: |
-          poetry run mkdocs build --clean
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: ./site
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3
-
-      - name: Create PyPI release
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish --build
