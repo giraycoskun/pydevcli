@@ -4,7 +4,7 @@ version = "0.2.0"
 description = "Python CLI for various purposes"
 authors = ["giraycoskun <giraycoskun.dev@gmail.com>"]
 license = "MIT"
-readme = "README.md"
+readme = "docs/README.md"
 packages = [{include = "pydevcli"}]
 
 [tool.poetry.dependencies]
