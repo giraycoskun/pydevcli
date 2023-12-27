@@ -12,4 +12,5 @@ def test(address: Annotated[str, typer.Argument(help="Connection Address")],
         password: Annotated[str, typer.Argument(help="Database Password")]):
     """Test Connection
     """
-    pass
+    console.print(f"Testing Database Connection Address: {address} Port: {port} Username: {username} Password: {password}")
+
