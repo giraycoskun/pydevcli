@@ -1,6 +1,6 @@
 name: Development
 
-on: 
+on:
   push:
     branches:
       - dev
