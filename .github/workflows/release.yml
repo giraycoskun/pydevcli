@@ -1,4 +1,4 @@
-name: Release
+name: release
 
 on: 
   push:
@@ -59,15 +59,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v3
 
-      - id: cz
-        name: Create bump and changelog
-        uses: commitizen-tools/commitizen-action@master
-        with:
-          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      - name: Print Version
-        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
-
-      - name: Release
+      - name: Github Release
         uses: softprops/action-gh-release@v1
         with:
           body_path: "./docs/CHANGELOG.md"
@@ -79,8 +71,3 @@ jobs:
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
           poetry publish --build
-          
-
-
-
-                

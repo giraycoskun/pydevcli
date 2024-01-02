@@ -1,15 +1,19 @@
-name: development
+name: stage
 
 on:
-  push:
+  pull_request:
     branches:
-      - dev
-  
+      - stage
+
   workflow_dispatch:
 
+permissions:
+    contents: write
+    pages: write
+    id-token: write
 
 jobs:
-  build:
+  stage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +21,7 @@ jobs:
       - uses: actions/setup-python@v5
         id: setup-python
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
@@ -33,15 +37,19 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-             
+
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --sync
-  
+
       - name: Run unit tests
         run: |
           poetry run python --version
           poetry run coverage run -m pytest tests/
           poetry run coverage report -m
-      
-      
+
+      - name: Create bump and changelog
+        uses: commitizen-tools/commitizen-action@master
+        with:
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          dry_run: true
